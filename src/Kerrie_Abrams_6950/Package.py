@@ -7,9 +7,9 @@ class Package:
         self. zipcode = zipcode
         self.deadline_time = deadline_time
         self.weight = weight
-        self.departure_time = departure_time
-        self.arrival_time = arrival_time
+        self.departure_time = None
+        self.arrival_time = None
         self.status = status
 
     def __str__(self):
-        return self.package_id
+        return

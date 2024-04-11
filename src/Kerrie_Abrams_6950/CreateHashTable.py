@@ -7,14 +7,14 @@ class HashTable:
         for i in range(initial_capacity):
             self.table.append([])
 
-    #Get bucket list where the item belongs
+    # Get bucket list where the item belongs
     def _get_bucket_list(self, key):
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
         return bucket_list
 
     # Inserts a new item into the hash table.
-    def insert(self, key, item): #  does both insert and update
+    def insert(self, key, item):
         # call _get_bucket_list to retrieve corresponding bucket list
         bucket_list = self._get_bucket_list(key)
 
@@ -48,7 +48,6 @@ class HashTable:
 
         # remove the item from the bucket list if it is present.
         for kv in bucket_list:
-            #print (key_value)
             if kv[0] == key:
                 bucket_list.remove([kv[0],kv[1]])
 
