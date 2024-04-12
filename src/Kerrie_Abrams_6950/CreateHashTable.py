@@ -51,7 +51,3 @@ class HashTable:
             if kv[0] == key:
                 bucket_list.remove([kv[0], kv[1]])
 
-    def print(self):
-        for item in self.table:
-            if item is not None:
-                print(str(item))
