@@ -38,7 +38,7 @@ class HashTable:
         # search for the key in the bucket list
         for kv in bucket_list:
             if kv[0] == key:
-                return kv[1] # value
+                return kv[1]
         return None
 
     # Removes an item with matching key from the hash table.
@@ -49,7 +49,7 @@ class HashTable:
         # remove the item from the bucket list if it is present.
         for kv in bucket_list:
             if kv[0] == key:
-                bucket_list.remove([kv[0],kv[1]])
+                bucket_list.remove([kv[0], kv[1]])
 
     def print(self):
         for item in self.table:
