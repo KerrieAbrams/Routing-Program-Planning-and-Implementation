@@ -12,7 +12,7 @@ class Package:
         self.status = status
 
     def __str__(self):
-        return "%s, %s, %s, %s, %s, %s, %s, %s, %s" % (
+        return "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (
             self.package_id,
             self.address,
             self.city,
@@ -21,6 +21,7 @@ class Package:
             self.deadline_time,
             self.weight,
             self.status,
+            self.departure_time,
             self.arrival_time
         )
 
