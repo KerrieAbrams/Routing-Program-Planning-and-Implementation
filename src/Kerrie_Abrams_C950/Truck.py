@@ -11,6 +11,9 @@ class Truck:
         self.address_list = address_list
         self.best_tour = []
 
-
-
+    def __str__(self):
+        d_time = self.departure_time
+        c_time = self.current_time
+        mileage = round(self.total_mileage, 1)
+        return "Departure Time: %s \t Estimated Return Time: %s \t Truck Mileage: %s" % (d_time, c_time, mileage)
 

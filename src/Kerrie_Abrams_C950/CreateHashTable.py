@@ -27,16 +27,6 @@ class HashTable:
         bucket_list.append(key_value)
         return True
 
-    # Searches for an item with matching key in the hash table.
-    # Returns the item if found, or None if not found.
-    def search(self, key):
-        bucket_list = self._get_bucket_list(key)
-        # search for the key in the bucket list
-        for kv in bucket_list:
-            if kv[0] == key:
-                return kv[1]
-        return None
-
     # Removes an item with matching key from the hash table.
     def remove(self, key):
         bucket_list = self._get_bucket_list(key)
@@ -46,3 +36,12 @@ class HashTable:
             if kv[0] == key:
                 bucket_list.remove([kv[0], kv[1]])
 
+    # Searches for an item with matching key in the hash table.
+    # Returns the item if found, or None if not found.
+    def search(self, key):
+        bucket_list = self._get_bucket_list(key)
+        # search for the key in the bucket list
+        for kv in bucket_list:
+            if kv[0] == key:
+                return kv[1]
+        return None
