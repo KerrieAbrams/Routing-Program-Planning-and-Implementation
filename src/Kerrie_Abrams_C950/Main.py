@@ -32,7 +32,6 @@ def load_package_data(file_name):
             notes = package[7]
             # creates package object
             package = Package.Package(package_id, address, city, state, zipcode, deadline_time, weight, status, notes)
-            # print(package.__str__())
             # adds package to hash table
             packageHashTable.insert(package_id, package)
 
@@ -71,44 +70,6 @@ def get_distance(x_index, y_index, matrix):
     return float(distance)
 
 
-# The following 2 functions prepare address and distance data of a package list for use in a 2 opt algorithm
-# given a package_list, creates a list of unique delivery addresses
-def create_address_list(package_list):
-    # create new list
-    address_list = []
-    i = 0
-    # append hub address to address
-    address = [0, "4001 South 700 East"]
-    address_list.append(address)
-    # append each unique [index, "address"] from package_list to address_list
-    for package_id in package_list:
-        package = packageHashTable.search(package_id)
-        address = [get_index(package.address, CSV_address_list), package.address]
-        if address not in address_list:
-            address_list.append(address)
-    # reassign indexes for future use in distance matrix
-    for address in address_list:
-        address[0] = i
-        i = i + 1
-    return address_list
-
-
-# for a given truck, creates a distance matrix based on the assigned address list
-def address_distance_matrix(truck):
-    # creates a list that represents the x values in a matrix
-    x_addresses = truck.address_list
-    # creates a list that represents the y values in a matrix
-    y_addresses = truck.address_list
-    # for every combination of addresses, a distance is assigned to the corresponding coordinate
-    for x_address in x_addresses:
-        for y_address in y_addresses:
-            # get original indexes from CSV_address_list
-            x_index = get_index(x_address[1], CSV_address_list)
-            y_index = get_index(y_address[1], CSV_address_list)
-            # get distance between addresses from distance_table and assign to corresponding coordinate
-            truck.distance_matrix[x_address[0]][y_address[0]] = get_distance(x_index, y_index, CSV_distance_table)
-
-
 # The following 3 functions are used in the 2-Opt Algorithm.
 # creates a random "best tour"
 def generate_ran_tour(truck):
@@ -120,11 +81,8 @@ def generate_ran_tour(truck):
 
 
 # returns distance for a given tour
-def two_opt_distance(truck, tour):
+def two_opt_distance(tour):
     tour = tour
-    distance_matrix = truck.distance_matrix
-    address_list = truck.address_list
-    # set distance to 0
     total_distance = 0
     # assigns starting location to where the truck begins, which is the hub
     location1 = 0
@@ -132,14 +90,14 @@ def two_opt_distance(truck, tour):
         # look up the package object
         package = packageHashTable.search(package)
         # assign the next location to the first package delivery address
-        location2 = get_index(package.address, address_list)
+        location2 = get_index(package.address, CSV_address_list)
         # calculate distance between start and next location
-        distance = get_distance(location1, location2, distance_matrix)
+        distance = get_distance(location1, location2, CSV_distance_table)
         total_distance += distance
         # reassign starting address to next address
         location1 = location2
     # after tour is complete, return truck to hub and calculate total_distance
-    distance = get_distance(location1, 0, distance_matrix)
+    distance = get_distance(location1, 0, CSV_distance_table)
     total_distance += distance
     return total_distance
 
@@ -161,7 +119,7 @@ def two_opt_implement(truck):
     # generates random route
     generate_ran_tour(truck)
     # calculates distance of that route
-    best_distance = two_opt_distance(truck, truck.best_tour)
+    best_distance = two_opt_distance(truck.best_tour)
     # algorithm assumes there is improvement
     found_improvement = True
     while found_improvement:
@@ -173,7 +131,7 @@ def two_opt_implement(truck):
                 # 2 opt swap
                 new_tour = two_opt_swap(truck.best_tour, i, j)
                 # calculate new distance
-                new_distance = two_opt_distance(truck, new_tour)
+                new_distance = two_opt_distance(new_tour)
                 # if new distance is better, reassign best_tour and best_distance to new values
                 if new_distance < best_distance:
                     truck.best_tour = new_tour
@@ -182,21 +140,18 @@ def two_opt_implement(truck):
                     found_improvement = True
 
 
-# The following function actually delivers the packages for a given truck, updated relevant truck and package
+# The following function actually delivers the packages for a given truck, updating relevant truck and package
 # information along the way.
 def deliver_packages(truck):
-    distance_matrix = truck.distance_matrix
-    address_list = truck.address_list
-    # set distance to 0
     truck.total_mileage = 0.0
     # assigns starting location to where the truck begins, which is the hub
     for package in truck.best_tour:
         # assign the next location to the first package delivery address
         package = packageHashTable.search(package)
-        truck_location = get_index(truck.location, address_list)
-        next_location = get_index(package.address, address_list)
+        truck_location = get_index(truck.location, CSV_address_list)
+        next_location = get_index(package.address, CSV_address_list)
         # calculate distance between start and next location
-        distance = get_distance(truck_location, next_location, distance_matrix)
+        distance = get_distance(truck_location, next_location, CSV_distance_table)
         # move truck to next location
         truck.location = package.address
         # update truck mileage
@@ -206,9 +161,8 @@ def deliver_packages(truck):
         # deliver package and update status
         package.arrival_time = truck.current_time
         package.departure_time = truck.departure_time
-
     # after all deliveries are complete, return truck to hub
-    distance = get_distance(get_index(truck.location, address_list), 0, distance_matrix)
+    distance = get_distance(get_index(truck.location, CSV_address_list), 0, CSV_distance_table)
     # update truck location
     truck.location = "4001 South 700 East"
     # update truck clock
@@ -217,7 +171,7 @@ def deliver_packages(truck):
     truck.total_mileage += distance
 
 
-# From here to line 280, the 2-opt algorithm is used to calculate the best delivery route for 3 delivery trucks,
+# From here to line 220, the 2-opt algorithm is used to calculate the best delivery route for 3 delivery trucks,
 # each loaded with a different package list. The packages are delivered using the deliver_packages function
 # to update each packages' information as they are delivered. A total_mileage is calculated at the end.
 
@@ -226,20 +180,12 @@ package_list1 = [4, 7, 8, 13, 14, 15, 16, 19, 20, 21, 29, 30, 34, 37, 39, 40]
 package_list2 = [1, 3, 5, 6, 18, 25, 26, 36, 31, 32, 38]
 package_list3 = [2, 9, 10, 11, 12, 17, 22, 23, 24, 27, 28, 33, 35]
 
-# Address lists are created from the package lists. Storing only unique addresses.
-# These files are used find the index of an address, which are used to search a distance matrix.
-address_list1 = create_address_list(package_list1)
-address_list2 = create_address_list(package_list2)
-address_list3 = create_address_list(package_list3)
 
 # 3 truck objects are created with the previously created package lists and address lists
-truck1 = Truck.Truck(package_list1, datetime.timedelta(hours=8), address_list1)
-truck2 = Truck.Truck(package_list2, datetime.timedelta(hours=9, minutes=5), address_list2)
-truck3 = Truck.Truck(package_list3, datetime.timedelta(hours=10, minutes=20), address_list3)
+truck1 = Truck.Truck(package_list1, datetime.timedelta(hours=8))
+truck2 = Truck.Truck(package_list2, datetime.timedelta(hours=9, minutes=5))
+truck3 = Truck.Truck(package_list3, datetime.timedelta(hours=10, minutes=20))
 
-# An address_distance_matrix is created for truck 1 and truck 2.
-address_distance_matrix(truck1)
-address_distance_matrix(truck2)
 
 # run the two opt algorithm for truck 1 and 2
 two_opt_implement(truck1)
@@ -263,14 +209,8 @@ package9.address = "410 S State St"
 package9.zipcode = "84111"
 # update hashtable
 packageHashTable.insert(9, package9)
-# recreate address list after updating package list
-new_address_list = create_address_list(package_list3)
-# update truck 3 address list
-truck3.address_list = new_address_list
 
 # Now truck 3 can leave.
-# create distance matrix for the 2-opt algorithm
-address_distance_matrix(truck3)
 # run the algorithm for truck 3
 two_opt_implement(truck3)
 # truck 3 delivers packages
